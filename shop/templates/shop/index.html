@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    {% if user.is_anonymous %}
+        <form method="POST" action="{% url 'shop:login' %}">
+            {% csrf_token %}
+            <label>User name:</label>
+            <input id="log" type="text" name="user_name" value="{{ login }}" />
+            <p>
+            <label>Password:</label>
+            <input id="pas" type="password" name="password" value="{{ pass }}" /></p>
+            <input type="submit" value="Login" />
+        </form>
+    {% else %}
+        Hello, {{ user }}
+        <a href="{% url 'shop:logout' %}">logout</a>
+    {% endif %}
+<p>Hello!</p>
+{% if procedures_list %}
+    <ul>
+    {% for procedure in procedures_list %}
+        {{ procedure.name }} --- {{ procedure.price }} duration: {{ procedure.duration }}
+    {% endfor %}
+    </ul>
+{% endif %}
+</body>
+</html>

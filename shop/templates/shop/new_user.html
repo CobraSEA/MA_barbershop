@@ -1,0 +1,7 @@
+<form method="POST" action="{% url 'shop:new_user' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <input type="hidden" name="next" value="{{ next }}" />
+    <input type="submit" value="Create" />
+</form>
