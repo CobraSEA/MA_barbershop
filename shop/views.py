@@ -1,4 +1,4 @@
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404
@@ -6,25 +6,25 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 
-from shop.models import procedures
+from shop.models import Procedures
 from shop import forms
 
 
 class ProceduresView(generic.ListView):
     template_name = 'shop/index.html'
-    model = procedures
+    model = Procedures
     context_object_name = 'procedures_list'
 
 
     def get_queryset(self):
-        query = procedures.objects.all()
+        query = Procedures.objects.all()
         print(query)
         return query
 
 
 class NewUserView(generic.CreateView):
     template_name = 'shop/new_user.html'
-    model = User
+    model = get_user_model()
     # form_class = forms.NewUserForm
     fields = ['username', 'password'
         , 'first_name', 'last_name', 'email']

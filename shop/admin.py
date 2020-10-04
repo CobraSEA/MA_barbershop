@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import masters, procedures
+from .models import Masters, Procedures
 
-admin.site.register(masters)
-admin.site.register(procedures)
-# admin.site.register(clients)
+admin.site.register(Masters)
+admin.site.register(Procedures)

@@ -1,23 +1,37 @@
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import models
 
-class masters(models.Model):
-    first_name = models.CharField(max_length=20, blank=False)
-    last_name = models.CharField(max_length=20, blank=False)
-    nic_name = models.CharField(max_length=20, blank=False)
 
-class procedures(models.Model):
+class Masters(models.Model):
+    RANKS = (
+        ('J', 'Junior'),
+        ('M', 'Middle'),
+        ('S', 'Senior'),
+    )
+    master = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
+    rank = models.CharField(max_length=1, choices=RANKS, default='J')
+
+
+class Procedures(models.Model):
     name = models.CharField(max_length=50, blank=False)
     price = models.DecimalField(max_length=19, decimal_places=2, max_digits=19)
     duration = models.IntegerField(default=30)
 
-class clients(models.Model):
-    SEX_TYPES = (
-        ('M', 'Male'),
-        ('F', 'Female'),
-    )
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=11, blank=False)
-    birthday = models.DateField()
-    sex = models.CharField(max_length=1, choices=SEX_TYPES)
 
+class Works(models.Model):
+    WORK_STATUSES = (
+        ('P', 'planed'),
+        ('D', 'done'),
+        ('C', 'canceled'),
+    )
+    client = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    master = models.ForeignKey(Masters, on_delete=models.CASCADE, default=1)
+    procedure = models.ForeignKey(Procedures, on_delete=models.CASCADE)
+    start_datetime = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=1, choices=WORK_STATUSES, default='P')
+
+
+class Comments(models.Model):
+    master = models.ForeignKey(Works, on_delete=models.CASCADE)
+    mark = models.SmallIntegerField(default=5)
+    text = models.TextField(default=' ')
