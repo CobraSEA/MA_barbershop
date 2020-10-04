@@ -3,13 +3,14 @@ from django.db import models
 
 
 class Masters(models.Model):
-    RANKS = (
+    LEVELS = (
         ('J', 'Junior'),
         ('M', 'Middle'),
         ('S', 'Senior'),
     )
     master = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
-    rank = models.CharField(max_length=1, choices=RANKS, default='J')
+    level = models.CharField(max_length=1, choices=LEVELS, default='J')
+    nick_name = models.CharField(max_length=50, default=' ')
 
 
 class Procedures(models.Model):
@@ -25,6 +26,7 @@ class Works(models.Model):
         ('C', 'canceled'),
     )
     client = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    # master = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     master = models.ForeignKey(Masters, on_delete=models.CASCADE, default=1)
     procedure = models.ForeignKey(Procedures, on_delete=models.CASCADE)
     start_datetime = models.DateTimeField(auto_now_add=True)

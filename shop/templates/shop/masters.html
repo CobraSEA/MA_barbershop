@@ -1,0 +1,7 @@
+{% if masters_list %}
+    {% for master in masters_list %}
+        <li>{{ master.nick_name }}</li>
+    {% endfor %}
+{% else %}
+    <p>No masters are available.</p>
+{% endif %}

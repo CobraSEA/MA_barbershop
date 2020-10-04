@@ -23,7 +23,7 @@
 {% if procedures_list %}
     <ul>
     {% for procedure in procedures_list %}
-        {{ procedure.name }} --- {{ procedure.price }} duration: {{ procedure.duration }}
+        <li>{{ procedure.name }} --- {{ procedure.price }} duration: {{ procedure.duration }}</li>
     {% endfor %}
     </ul>
 {% endif %}
