@@ -1,6 +1,6 @@
 {% if masters_list %}
     {% for master in masters_list %}
-        <li>{{ master.nick_name }}</li>
+        <li><a href="{% url 'shop:master_detail' master.id %}">{{ master.nick_name }}</a></li>
     {% endfor %}
 {% else %}
     <p>No masters are available.</p>

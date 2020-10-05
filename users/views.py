@@ -10,7 +10,8 @@ class MyUserForm(UserCreationForm):
         # fields = '__all__'
         fields = ("username", "password1", "password2"
                   , "email", "first_name", "last_name"
-                  , "gender", "tel_number")
+                  , "gender", "tel_number", 'is_master'
+                  , 'birthday', 'level', 'nick_name')
 
 
 class CreateUserView(generic.CreateView):
