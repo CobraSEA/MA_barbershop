@@ -15,9 +15,12 @@
             <input id="pas" type="password" name="password" value="{{ pass }}" /></p>
             <input type="submit" value="Login" />
         </form>
+        <p><a href="{% url 'users:registration' %}">Register user</a></p>
     {% else %}
         Hello, {{ user }}
         <a href="{% url 'shop:logout' %}">logout</a>
+        ----
+        <a href="{% url 'shop:client_orders' %}">Your orders</a>
     {% endif %}
 <p>Hello!</p>
 {% if procedures_list %}
@@ -27,5 +30,7 @@
     {% endfor %}
     </ul>
 {% endif %}
+
+    <p><a href="{% url 'shop:masters' %}">Barbers</a></p>
 </body>
 </html>

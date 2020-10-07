@@ -1,6 +1,25 @@
-Master:
-<p>{{ master.nick_name}}</p>
-<p>{{ master.first_name}}</p>
-<p>{{ master.last_name}}</p>
-<p>{{ master.birthday}}</p>
-<p>{{ master.gender}}</p>
+Barber:
+<p>{{ master.nick_name}} - {{ master_age }} - {{ master.level }}</p>
+
+<p>Comments:</p>
+<ul>
+{% for comment_id, comment in comments.items %}
+    <li>{{ comment }}</li>
+{% endfor %}
+</ul>
+
+<form method="post" action="{% url 'shop:create_comment' master.id %}">{% csrf_token %}
+    <p>Comment<Br>
+    <textarea name="comment_text" cols="40" rows="3" placeholder="comment here"></textarea></p>
+    <p><input type="submit" value="Add"></p>
+</form>
+
+<form method="post" action="{% url 'shop:registration' master.id %}">{% csrf_token %}
+{% for proc_id, proc_name in procedures.items %}
+    <input type="radio" name="proc" id="proc{{ forloop.counter }}" value="{{ proc_id }}">
+    <label for="proc{{ forloop.counter }}">{{ proc_name }}</label><br>
+{% endfor %}
+    <p>Register</p>
+    <input type="datetime-local" name="reg_date">
+    <p><input type="submit" value="register"></p>
+</form>

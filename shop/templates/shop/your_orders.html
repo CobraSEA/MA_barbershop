@@ -1,0 +1,9 @@
+{% if order_list %}
+    {% for order in order_list %}
+        <li>{{ order.start_datetime }} - {{ order.status }} - {{order.master.nick_name}} - {{order.client.first_name}}</li>
+    {% endfor %}
+{% else %}
+    <p>No plans or history works.</p>
+{% endif %}
+
+<a href="{% url 'shop:index' %}">Return to shop</a>
