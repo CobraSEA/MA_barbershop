@@ -1,9 +1,9 @@
 import datetime
 
 from django.contrib.auth import login, logout, authenticate, get_user_model
-from django.forms import ModelForm, forms, ModelChoiceField
+from django.forms import ModelForm, ModelChoiceField
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 from .models import Procedures, Comments, Orders
@@ -35,6 +35,14 @@ class ClientOrdersView(generic.ListView):
         return Orders.objects.filter(client=self.request.user.pk)
 
 
+class ProcDetailView(generic.DetailView):
+    template_name = 'shop/proc.html'
+    context_object_name = 'procedure_list'
+    model = Procedures
+    pk_url_kwarg = 'proc_id'
+
+
+
 class MastersView(generic.ListView):
     template_name = 'shop/masters.html'
     context_object_name = 'masters_list'
@@ -48,23 +56,25 @@ class MasterDetailView(generic.DetailView):
     pk_url_kwarg = 'master_id'
     template_name = 'shop/master.html'
     context_object_name = 'master'
+    extra_context = {'procedures': Procedures.objects.all()}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         masters_comments = Comments.objects.filter(master=self.object).order_by('-insert_datetime')[:10]
         context['master_age'] = datetime.datetime.now().date().year - self.object.birthday.year
-        procedures = Procedures.objects.all()
+        # procedures = Procedures.objects.all()
 
-        proc_list = {}
-        for proc in procedures:
-            proc_list[proc.pk] = proc.name
-        context['procedures'] = proc_list
+        # proc_list = {}
+        # for proc in procedures:
+        #     proc_list[proc.pk] = proc.name
+        # context['procedures'] = proc_list
 
         comments = {}
         for c in masters_comments:
             comments[c.id] = c.client.first_name + ': ' + c.text
         context['comments'] = comments
         return context
+
 
 def registration(request, master_id):
     if request.method == 'POST':
@@ -78,6 +88,7 @@ def registration(request, master_id):
         print(case)
     return HttpResponseRedirect(reverse('shop:client_orders'))
 
+
 class CommentForm(ModelForm):
     master = ModelChoiceField(queryset=User.objects.filter(is_master=True), required=True)
 
@@ -85,6 +96,7 @@ class CommentForm(ModelForm):
         model = Comments
         fields = ['master', 'rate', 'text']
         hidden_fields = ['client']
+
 
 def create_new_comment(request, master_id):
     if request.method == 'POST':

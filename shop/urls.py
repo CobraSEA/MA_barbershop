@@ -13,5 +13,6 @@ urlpatterns = [
     path('create_procedure/', views.CreateProcedure.as_view(), name='create_procedure'),
     # path('create_comment/', views.CreateComment.as_view(), name='create_comment'),
     path('create_comment/<int:master_id>/', views.create_new_comment, name='create_comment'),
+    path('proc/<int:proc_id>/', views.ProcDetailView.as_view(), name='proc_detail'),
     path('', views.ProceduresView.as_view(), name='index'),
 ]
