@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
-
+from .develop_app *
 import psycopg2 as psycopg2
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,7 +27,6 @@ SECRET_KEY = 'jla!e^40y!j-&sz!xpjhhbqw#2($q!$!3l6dv_*1oz#-6+%77&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -79,16 +78,6 @@ WSGI_APPLICATION = 'Barber.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'barbershop',
-        'USER': 'cobra',
-        'PASSWORD': 'ujytdj',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
-}
 
 
 # Password validation
