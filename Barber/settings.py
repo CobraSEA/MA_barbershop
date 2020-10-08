@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
-from .develop_app *
+from .develop_app import *
 import psycopg2 as psycopg2
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
