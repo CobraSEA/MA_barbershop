@@ -21,12 +21,19 @@
         <a href="{% url 'shop:logout' %}">logout</a>
         ----
         <a href="{% url 'shop:client_orders' %}">Your orders</a>
+        {% if user.is_staff %}
+            <p><a href="{% url 'shop:create_procedure' %}">Create new procedure</a></p>
+            <p><a href="{% url 'shop:all_orders' %}">All orders</a></p>
+            <p><a href="{% url 'users:all_users' %}">All users</a></p>
+        {% endif %}
     {% endif %}
 <p>Hello!</p>
+
+
 {% if procedures_list %}
     <ul>
     {% for procedure in procedures_list %}
-        <li>{{ procedure.name }} --- {{ procedure.price }} duration: {{ procedure.duration }}</li>
+        <li><a href="{% url 'shop:proc_detail' procedure.pk %}">{{ procedure.name }}</a> --- {{ procedure.price }} UAH, Duration: {{ procedure.duration }} min</li>
     {% endfor %}
     </ul>
 {% endif %}

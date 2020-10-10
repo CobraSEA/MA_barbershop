@@ -1,2 +1,17 @@
 Procedure:
-{{ proc.name }} Duration: {{ proc.duration }}
+{{ procedure.name }} Duration: {{ procedure.duration }} Price: {{ procedure.price }}
+
+<form method="post" action="{% url 'shop:registration' %}">{% csrf_token %}
+    <input type="hidden" name="proc_id" value="{{ procedure.id }}">
+    <label for="id_master">Select barber:</label><br>
+    <select name="master_id" id="id_master" value="{{ master.id }}">
+    {% for master in masters %}
+        <option value="{{ master.id }}">{{ master.nick_name }}</option>
+    {% endfor %}
+    </select>
+    <p>Register datetime</p>
+    <input type="datetime-local" name="reg_date">
+    <p><input type="submit" value="register"></p>
+</form>
+
+<p><a href="{% url 'shop:index' %}">Return to shop</a></p>

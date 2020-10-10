@@ -1,0 +1,21 @@
+{% if order_list %}
+    <form method="post" action="{% url 'shop:change_order_status' %}">{% csrf_token %}
+        {% for order in order_list %}
+        <input type="radio" name="order" id="order{{ forloop.counter }}" value="{{ order.id }}">
+        <label for="order{{ forloop.counter }}">
+                {{ order.start_datetime }} - {{ order.client.first_name }}
+                 --- {{ order.master.get_level_display }}
+                - {{ order.master.nick_name }} - {{ order.client.first_name }}
+                {{ order.get_status_display }}
+        </label><br>
+        {% endfor %}
+
+        <input type="submit" value="Close order" name="change_status">
+        <input type="submit" value="Cancel" name="change_status">
+        <input type="submit" value="Return planed" name="change_status" >
+    </form>
+{% else %}
+    <p>No plans or history works.</p>
+{% endif %}
+
+<a href="{% url 'shop:index' %}">Return to shop</a>

@@ -26,6 +26,12 @@ class CreateProcedure(generic.CreateView):
     success_url = reverse_lazy('shop:index')
     fields = '__all__'
 
+    def get(self, request, *args, **kwargs):
+        print(request.user.is_staff)
+        if request.user.is_staff:
+            return super().get(request, *args, **kwargs)
+        return HttpResponseRedirect(reverse('shop:index'))
+
 
 class ClientOrdersView(generic.ListView):
     template_name = 'shop/your_orders.html'
@@ -35,11 +41,38 @@ class ClientOrdersView(generic.ListView):
         return Orders.objects.filter(client=self.request.user.pk)
 
 
+class AllOrdersView(generic.ListView):
+    template_name = 'shop/orders.html'
+    context_object_name = 'order_list'
+    model = Orders
+    ordering = 'start_datetime'
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            return super().get(request, *args, **kwargs)
+        return HttpResponseRedirect(reverse('shop:index'))
+
+
+def change_order_status(request):
+    print('change_order_status', request.POST)
+    order = Orders.objects.get(pk=request.POST['order'])
+    status = request.POST['change_status']
+    if status == 'Cancel':
+        order.status = 'C'
+    if status == 'Close order':
+        order.status = 'D'
+    if status == 'Return planed':
+        order.status = 'P'
+    order.save()
+    return HttpResponseRedirect(reverse('shop:all_orders'))
+
+
 class ProcDetailView(generic.DetailView):
     template_name = 'shop/proc.html'
-    context_object_name = 'procedure_list'
+    context_object_name = 'procedure'
     model = Procedures
     pk_url_kwarg = 'proc_id'
+    extra_context = {'masters': User.objects.filter(is_master=True)}
 
 
 
@@ -62,12 +95,6 @@ class MasterDetailView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         masters_comments = Comments.objects.filter(master=self.object).order_by('-insert_datetime')[:10]
         context['master_age'] = datetime.datetime.now().date().year - self.object.birthday.year
-        # procedures = Procedures.objects.all()
-
-        # proc_list = {}
-        # for proc in procedures:
-        #     proc_list[proc.pk] = proc.name
-        # context['procedures'] = proc_list
 
         comments = {}
         for c in masters_comments:
@@ -76,16 +103,13 @@ class MasterDetailView(generic.DetailView):
         return context
 
 
-def registration(request, master_id):
+def registration(request):
     if request.method == 'POST':
-        print(request.POST['reg_date'])
-        print(request.POST['proc'])
-        print(master_id)
-        case = Orders.objects.create(master_id=master_id
-                                    , client=request.user
-                                    , procedure_id=request.POST['proc']
-                                    , start_datetime=request.POST['reg_date'])
-        print(case)
+        print(request.POST)
+        Orders.objects.create(master_id=request.POST['master_id'],
+                              client=request.user,
+                              procedure_id=request.POST['proc_id'],
+                              start_datetime=request.POST['reg_date'])
     return HttpResponseRedirect(reverse('shop:client_orders'))
 
 

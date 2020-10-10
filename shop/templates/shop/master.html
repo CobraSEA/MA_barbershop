@@ -14,14 +14,18 @@ Barber:
     <p><input type="submit" value="Add"></p>
 </form>
 
-<form method="post" action="{% url 'shop:registration' master.id %}">{% csrf_token %}
-{% for proc in procedures %}
-    <input type="radio" name="proc" id="proc{{ forloop.counter }}" value="{{ proc.id }}">
-    <label for="proc{{ forloop.counter }}">{{ proc.name }}</label><br>
-{% endfor %}
-    <p>Register</p>
+<form method="post" action="{% url 'shop:registration' %}">{% csrf_token %}
+    <input type="hidden" name="master_id" value="{{ master.id }}">
+    <label for="id_proc">Procedure</label><br>
+    <select name="proc_id" id="id_proc" value="{{ proc.id }}">
+    {% for proc in procedures %}
+        <option value="{{ proc.id }}">{{ proc.name }}</option>
+    {% endfor %}
+    </select>
+    <p>Register datetime</p>
     <input type="datetime-local" name="reg_date">
     <p><input type="submit" value="register"></p>
 </form>
+
 
 <p><a href="{% url 'shop:index' %}">Return to shop</a></p>

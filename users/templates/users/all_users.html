@@ -1,0 +1,11 @@
+<form action="." method="POST" >
+    {% csrf_token%}
+
+    {% for user in users %}
+    <p><a href="{% url 'users:update_user' user.pk %}">{{ user.username }}</a>
+        -- {{ user.first_name }} {{ user.last_name }} {{ is_master }}</p>
+
+    {% endfor %}
+    <input type="submit" value="Save" >
+</form>
+<a href="{% url 'shop:index' %}">Return to shop</a>
