@@ -2,10 +2,11 @@
     {% csrf_token%}
 
     {% for user in users %}
-    <p><a href="{% url 'users:update_user' user.pk %}">{{ user.username }}</a>
-        -- {{ user.first_name }} {{ user.last_name }} {{ is_master }}</p>
+    <p><a href="{% url 'users:user_update' user.pk %}">{{ user.username }}</a>
+        -- {{ user.first_name }} {{ user.last_name }} Master: {{ user.is_master }}
+    Staff: {{ user.is_staff }} </p>
 
     {% endfor %}
-    <input type="submit" value="Save" >
+<!--    <input type="submit" value="Save" > /-->
 </form>
 <a href="{% url 'shop:index' %}">Return to shop</a>

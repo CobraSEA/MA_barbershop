@@ -1,7 +1,8 @@
 <form method="post">{% csrf_token %}
 
-    <p><input type="text" value="{{ users.nick_name }}"></p>
-    <p><input type="checkbox" value="{{ users.is_master }}"> {{ users.is_master }}</p>
-    <p><input type="checkbox" value="{{ users.is_staff }}"> {{ users.is_staff }} </p>
-    <input type="submit" value="Save">
+    {{ form.as_p }}
+    <input type="submit" name="Save">
 </form>
+
+<a href="{% url 'users:all_users' %}">Return to users</a>
+<a href="{% url 'shop:index' %}">Return to shop</a>

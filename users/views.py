@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views import generic
 from users.forms import MyUserForm
 from users.models import User
@@ -22,14 +22,17 @@ class AllUsersView(generic.ListView):
     model = get_user_model()
     fields = '__all__'
     context_object_name = 'users'
-    ordering = ['username', 'is_staff', 'is_master', 'first_name', 'last_name']
+    ordering = ['is_staff', 'is_master', 'username', 'first_name', 'last_name']
 
     def get_queryset(self):
-        return User.objects.all()
+        return User.objects.all().order_by('-is_staff', '-is_master', 'username', 'first_name', 'last_name')
+
 
 class UserUpdateView(generic.edit.UpdateView):
     model = User
     fields = ['is_master', 'is_staff', 'nick_name']
-    template_name_suffix = '_update'
-    pk_url_kwarg = 'user_id'
-    context_object_name = 'users'
+    success_url = reverse_lazy('users:all_users')
+    template_name = 'users/user_update.html'
+
+
+
