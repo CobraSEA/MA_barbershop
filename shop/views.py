@@ -56,13 +56,7 @@ class AllOrdersView(generic.ListView):
 def change_order_status(request):
     print('change_order_status', request.POST)
     order = Orders.objects.get(pk=request.POST['order'])
-    status = request.POST['change_status']
-    if status == 'Cancel':
-        order.status = 'C'
-    if status == 'Close order':
-        order.status = 'D'
-    if status == 'Return planed':
-        order.status = 'P'
+    order.status = request.POST['change_status']
     order.save()
     return HttpResponseRedirect(reverse('shop:all_orders'))
 

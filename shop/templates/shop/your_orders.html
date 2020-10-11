@@ -1,9 +1,96 @@
-{% if order_list %}
-    {% for order in order_list %}
-        <li>{{ order.start_datetime }} - {{ order.status }} - {{order.master.nick_name}} - {{order.client.first_name}}</li>
-    {% endfor %}
-{% else %}
-    <p>No plans or history works.</p>
-{% endif %}
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
 
-<a href="{% url 'shop:index' %}">Return to shop</a>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.1.1">
+    <title>Pricing example · Bootstrap</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/pricing/">
+
+    <!-- Bootstrap core CSS -->
+<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="pricing.css" rel="stylesheet">
+  </head>
+  <body>
+  <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+  <h5 class="my-0 mr-md-auto font-weight-normal">Barbershop</h5>
+  <nav class="my-2 my-md-0 mr-md-3">
+      <a class="p-2 text-dark" href="{% url 'shop:index' %}">Shop</a>
+      <a class="p-2 text-dark" href="{% url 'shop:masters' %}">Barbers</a>
+    {% if user.is_anonymous %}
+    <form method="POST" action="{% url 'shop:login' %}">
+            {% csrf_token %}
+            <input id="log" type="text" name="user_name" value="{{ login }}" placeholder="User name" />
+            <input id="pas" type="password" name="password" value="{{ pass }}" placeholder="Password" />
+            <input class="btn btn-outline-primary" type="submit" value="Login" />
+        </form>
+    {% else %}
+        <a class="p-2 text-dark" href="{% url 'shop:client_orders' %}">Your orders</a>
+        {% if user.is_staff %}
+            <a class="p-2 text-dark" href="{% url 'shop:create_procedure' %}">Create new procedure</a>
+            <a class="p-2 text-dark" href="{% url 'shop:all_orders' %}">All orders</a>
+            <a class="p-2 text-dark" href="{% url 'users:all_users' %}">All users</a>
+        {% endif %}
+        Hello, {{ user }}
+            <a class="btn btn-outline-primary" type="submit" href="{% url 'shop:logout' %}">logout</a>
+    {% endif %}
+  </nav>
+</div>
+
+  <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">     
+	{% if order_list %}
+      <h2>Your orders</h2>
+      <div class="table-responsive">
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th>Date, time</th>
+              <th>Barber</th>
+              <th>Status</th>
+              <th>Procedure</th>
+            </tr>
+          </thead>
+          <tbody>
+		  {% for order in order_list %}
+            <tr>
+              <td>{{ order.start_datetime }}</td>
+              <td>{{order.master.nick_name}}</td>
+              <td>{{ order.get_status_display }}</td>
+              <td>{{ order.procedure.name }}</td>
+            </tr>
+          {% endfor %}  
+          </tbody>
+        </table>
+      </div>
+	  {% endif %}
+	</main>
+	</div>
+</body>
+</html>
