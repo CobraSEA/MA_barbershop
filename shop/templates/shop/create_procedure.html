@@ -50,6 +50,7 @@
             <input id="log" type="text" name="user_name" value="{{ login }}" placeholder="User name" />
             <input id="pas" type="password" name="password" value="{{ pass }}" placeholder="Password" />
             <input class="btn btn-outline-primary" type="submit" value="Login" />
+            <a class="btn btn-outline-primary" href="{% url 'users:registration' %}">New user</a>
         </form>
     {% else %}
         <a class="p-2 text-dark" href="{% url 'shop:client_orders' %}">Your orders</a>
