@@ -14,4 +14,17 @@ Procedure:
     <p><input type="submit" value="register"></p>
 </form>
 
+
+<form method="post" action="{% url 'shop:registration' %}">{% csrf_token %}
+    <input type="hidden" name="proc_id" value="{{ procedure.id }}">
+    {% for master in masters %}
+        <p><input type="radio" name="master_id" id="master{{ forloop.counter }}" value="{{ master.id }}">
+            <label for="master{{ forloop.counter }}">{{ master.nick_name }}</label></p>
+    {% endfor %}
+    </input>
+    <p>Register datetime</p>
+    <input type="datetime-local" name="reg_date">
+    <p><input type="submit" value="register"></p>
+</form>
+
 <p><a href="{% url 'shop:index' %}">Return to shop</a></p>
