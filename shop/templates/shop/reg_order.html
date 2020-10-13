@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+{{ procedure.name }}
+{{ master.nick_name }}
+
+<input type="datetime-local" name="start" value="{{ form.start }}">
+<p>{{ form.start_datetime }}</p>
+<p>{{ form.start }}</p>
+order registration
+<form action="{% url 'shop:reg_order' procedure.id master.id%}" method="post">{% csrf_token %}
+{% for t, dt in times.items %}
+    <p><input type="radio" id="times{{ forloop.counter }}" name="reg_date" value="{{ dt }}" >
+    <label for="times{{ forloop.counter }}">{{ t }}</label>
+    <input type="datetime-local" value="{{ dt }}"> {{ dt }}
+    </p>
+
+{% endfor %}
+    <input type="text" name="proc_id" value="{{ procedure.id }}" hidden>
+    <input type="text" name="master_id" value="{{ master.id }}" hidden>
+    <input type="submit" name="reg" value="register">
+</form>
+
+</body>
+</html>

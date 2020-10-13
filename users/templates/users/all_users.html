@@ -74,6 +74,8 @@
               <th>User name</th>
               <th>First name</th>
 			  <th>Last name</th>
+              <th>Nick name</th>
+              <th>Level</th>
               <th>Is master</th>
 			  <th>Is staff</th>
             </tr>
@@ -84,6 +86,8 @@
               <td><a class="p-2 text-dark" href="{% url 'users:user_update' user.pk %}">{{ user.username }}</a></td>
               <td>{{ user.first_name }}</td>
 			  <td>{{ user.last_name }}</td>
+              <td>{{ user.nick_name }}</td>
+              <td>{{ user.get_level_display }}</td>
               <td>{{ user.is_master }}</td>
 			  <td>{{ user.is_staff }}</td>
             </tr>

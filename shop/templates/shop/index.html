@@ -45,7 +45,7 @@
       <a class="p-2 text-dark" href="{% url 'shop:index' %}">Shop</a>
       <a class="p-2 text-dark" href="{% url 'shop:masters' %}">Barbers</a>
     {% if user.is_anonymous %}
-        <form method="POST" action="{% url 'shop:login' %}">
+         <form method="POST" action="{% url 'shop:login' %}" style="display: inline-block">
             {% csrf_token %}
             <input id="log" type="text" name="user_name" value="{{ login }}" placeholder="User name" />
             <input id="pas" type="password" name="password" value="{{ pass }}" placeholder="Password" />
@@ -95,7 +95,6 @@
     </div>
   </div>
     {% endif %}
-</div>
 
 
 

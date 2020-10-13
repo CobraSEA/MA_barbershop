@@ -1,31 +1,125 @@
-Barber:
-<p>{{ master.nick_name}} - {{ master_age }} - {{ master.level }}</p>
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
 
-<p>Comments:</p>
-<ul>
-{% for comment_id, comment in comments.items %}
-    <li>{{ comment }}</li>
-{% endfor %}
-</ul>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.1.1">
+    <title>Pricing example · Bootstrap</title>
 
-<form method="post" action="{% url 'shop:create_comment' master.id %}">{% csrf_token %}
-    <p>Comment<Br>
-    <textarea name="comment_text" cols="40" rows="3" placeholder="comment here"></textarea></p>
-    <p><input type="submit" value="Add"></p>
-</form>
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/pricing/">
 
-<form method="post" action="{% url 'shop:registration' %}">{% csrf_token %}
-    <input type="hidden" name="master_id" value="{{ master.id }}">
-    <label for="id_proc">Procedure</label><br>
-    <select name="proc_id" id="id_proc" value="{{ proc.id }}">
-    {% for proc in procedures %}
-        <option value="{{ proc.id }}">{{ proc.name }}</option>
-    {% endfor %}
-    </select>
-    <p>Register datetime</p>
-    <input type="datetime-local" name="reg_date">
-    <p><input type="submit" value="register"></p>
-</form>
+    <!-- Bootstrap core CSS -->
+<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
 
-<p><a href="{% url 'shop:index' %}">Return to shop</a></p>
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="pricing.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+  <h5 class="my-0 mr-md-auto font-weight-normal">Barbershop</h5>
+  <nav class="my-2 my-md-0 mr-md-3">
+      <a class="p-2 text-dark" href="{% url 'shop:index' %}">Shop</a>
+      <a class="p-2 text-dark" href="{% url 'shop:masters' %}">Barbers</a>
+    {% if user.is_anonymous %}
+         <form method="POST" action="{% url 'shop:login' %}" style="display: inline-block">
+            {% csrf_token %}
+            <input id="log" type="text" name="user_name" value="{{ login }}" placeholder="User name" />
+            <input id="pas" type="password" name="password" value="{{ pass }}" placeholder="Password" />
+            <input class="btn btn-outline-primary" type="submit" value="Login" />
+            <a class="btn btn-outline-primary" href="{% url 'users:registration' %}">New user</a>
+        </form>
+    {% else %}
+        <a class="p-2 text-dark" href="{% url 'shop:client_orders' %}">Your orders</a>
+        {% if user.is_staff %}
+            <a class="p-2 text-dark" href="{% url 'shop:create_procedure' %}">Create new procedure</a>
+            <a class="p-2 text-dark" href="{% url 'shop:all_orders' %}">All orders</a>
+            <a class="p-2 text-dark" href="{% url 'users:all_users' %}">All users</a>
+        {% endif %}
+        Hello, {{ user }}
+            <a class="btn btn-outline-primary" type="submit" href="{% url 'shop:logout' %}">logout</a>
+    {% endif %}
+  </nav>
+</div>
+    <div class="row">
+    <div class="col-md-4">
+    <div class="card mb-4 shadow-sm">
+            <svg class="bd-placeholder-img card-img-top" width="50%" height="225" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Thumbnail">
+                <title>Placeholder</title>
+                <rect width="100%" height="100%" fill="#55595c"/>
+                <text x="50%" y="50%" fill="#eceeef" dy=".3em">{{ master.nick_name }}</text>
+            </svg>
+            <div class="card-body">
+              <p class="card-text">{{ master.first_name }}</p>
+                <text x="50%" y="50%" fill="#eceeef" dy=".3em">{{ master.get_level_display }}</text>
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">{{ master_age }} </small>
+              </div>
+            </div>
+    </div>
+    </div>
+        <div class="col-md-4">
+
+        {% for comment_id, comment in comments.items %}
+            <li><small>{{ comment }}</small></li>
+        {% endfor %}
+
+        </div>
+        <div class="col-md-4">
+            <form method="post" action="{% url 'shop:create_comment' master.id %}">{% csrf_token %}
+                <textarea name="comment_text" cols="40" rows="8" resize="none" placeholder="comment here"></textarea></p>
+                <p><input class="btn btn-sm btn-outline-secondary" type="submit" value="Add"></p>
+            </form>
+
+        </div>
+    </div>
+{% if procedures %}
+<div class="album py-5 bg-light">
+    <div class="container">
+      <div class="row">
+        {% for procedure in procedures %}
+        <div class="col-md-4">
+          <div class="card mb-4 shadow-sm">
+            <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Thumbnail"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"/><text x="50%" y="50%" fill="#eceeef" dy=".3em">{{ procedure.name }}</text></svg>
+            <div class="card-body">
+              <p class="card-text">{{ procedure.price }}</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <a type="button" class="btn btn-sm btn-outline-secondary" href="{% url 'shop:reg_order' procedure.id master.id %}">SELECT</a>
+                </div>
+                <small class="text-muted">{{ procedure.duration }} mins</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+    {% endif %}
+
+  </body>
+</html>

@@ -2,7 +2,7 @@ import datetime
 
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.forms import ModelForm, ModelChoiceField
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views import generic
@@ -68,6 +68,10 @@ class ProcDetailView(generic.DetailView):
     pk_url_kwarg = 'proc_id'
     extra_context = {'masters': User.objects.filter(is_master=True)}
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print(context)
+        return context
 
 
 class MastersView(generic.ListView):
@@ -97,14 +101,51 @@ class MasterDetailView(generic.DetailView):
         return context
 
 
-def registration(request):
-    if request.method == 'POST':
+# def registration(request):
+#     if request.method == 'POST':
+
+
+
+class RegOrderForm(ModelForm):
+    class Meta:
+        model = Orders
+        fields = ['start_datetime']
+
+def reg_order(request, proc_id, master_id):
+    if request.method == 'GET':
+        form = RegOrderForm()
+        form.start = datetime.datetime.now()
+        print(form.start)
+        context = {'form': form}
+        procedure = Procedures.objects.get(pk=proc_id)
+        master = User.objects.get(pk=master_id)
+
+        context.update({'procedure': procedure, 'master': master})
+
+        now = datetime.datetime.now()
+        start_day_time = datetime.datetime(now.year, now.month, now.day, 8, 0)
+        times = {}
+        for i in range(15):
+            time = start_day_time + datetime.timedelta(hours=i)
+            # times[time.strftime('%H:%M')] = time
+            times[time.strftime('%H:%M')] = time.strftime("%Y-%m-%d %H:%M")
+            # print(time.strftime('%H:%M'))
+        context.update({'times': times})
+
+        print(context)
+        print(datetime.datetime(now.year, now.month, now.day, 8, 0).strftime('%Y-%m-%d %H:%M'))
+        return render(request, 'shop/reg_order.html', context)
+    else:
         print(request.POST)
-        Orders.objects.create(master_id=request.POST['master_id'],
+        date = datetime.datetime.strptime(request.POST['reg_date'], "%Y-%m-%d %H:%M")
+        print(date)
+        d = Orders.objects.create(master_id=request.POST['master_id'],
                               client=request.user,
                               procedure_id=request.POST['proc_id'],
-                              start_datetime=request.POST['reg_date'])
-    return HttpResponseRedirect(reverse('shop:client_orders'))
+                              start_datetime=date)
+        print(d, 'here')
+        return redirect('shop:client_orders')
+
 
 
 class CommentForm(ModelForm):

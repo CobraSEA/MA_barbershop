@@ -30,7 +30,7 @@ class AllUsersView(generic.ListView):
 
 class UserUpdateView(generic.edit.UpdateView):
     model = User
-    fields = ['is_master', 'is_staff', 'nick_name']
+    fields = ['is_master', 'is_staff', 'nick_name', 'level']
     success_url = reverse_lazy('users:all_users')
     template_name = 'users/user_update.html'
 

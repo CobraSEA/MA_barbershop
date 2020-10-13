@@ -17,7 +17,7 @@ class Orders(models.Model):
     client = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='work_client', on_delete=models.CASCADE)
     master = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='work_master', on_delete=models.CASCADE)
     procedure = models.ForeignKey(Procedures, on_delete=models.CASCADE)
-    start_datetime = models.DateTimeField(auto_now_add=True)
+    start_datetime = models.DateTimeField(auto_now_add=False)
     status = models.CharField(max_length=1, choices=STATUSES, default='P')
 
 
