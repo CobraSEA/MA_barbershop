@@ -1,13 +1,16 @@
 import datetime
 
+import pytz
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.forms import ModelForm, ModelChoiceField
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.views import generic
 from .models import Procedures, Comments, Orders
 from users.models import User
+from Barber.settings import TIME_ZONE
 
 
 class ProceduresView(generic.ListView):
@@ -114,36 +117,42 @@ class RegOrderForm(ModelForm):
 def reg_order(request, proc_id, master_id):
     if request.method == 'GET':
         form = RegOrderForm()
-        form.start = datetime.datetime.now()
-        print(form.start)
+        form.start = timezone.now()
+
+        user_timezone = pytz.timezone(TIME_ZONE)
+
         context = {'form': form}
         procedure = Procedures.objects.get(pk=proc_id)
         master = User.objects.get(pk=master_id)
-
         context.update({'procedure': procedure, 'master': master})
 
-        now = datetime.datetime.now()
-        start_day_time = datetime.datetime(now.year, now.month, now.day, 8, 0)
+        now = timezone.now().astimezone(user_timezone)
+        if now.hour >= 23:
+            now = datetime.datetime(now.year, now.month, now.day, 8, 0).astimezone(user_timezone)
+
+        master_exec_times = Orders.objects.filter(master=master_id, start_datetime__gte=now)
+        time_ex_list = [ex_time.start_datetime.astimezone(user_timezone) for ex_time in master_exec_times]
+
         times = {}
-        for i in range(15):
-            time = start_day_time + datetime.timedelta(hours=i)
-            # times[time.strftime('%H:%M')] = time
-            times[time.strftime('%H:%M')] = time.strftime("%Y-%m-%d %H:%M")
+        time = datetime.datetime(now.year, now.month, now.day, now.hour + 1, 0).astimezone(user_timezone)
+        for i in range(now.hour + 1, 23, 1):
+            if time not in time_ex_list:
+                times[time.strftime('%H:%M')] = time.strftime("%Y-%m-%d %H:%M")
+            time += datetime.timedelta(hours=1)
             # print(time.strftime('%H:%M'))
         context.update({'times': times})
 
-        print(context)
-        print(datetime.datetime(now.year, now.month, now.day, 8, 0).strftime('%Y-%m-%d %H:%M'))
         return render(request, 'shop/reg_order.html', context)
     else:
-        print(request.POST)
+        # print(request.POST)
         date = datetime.datetime.strptime(request.POST['reg_date'], "%Y-%m-%d %H:%M")
         print(date)
-        d = Orders.objects.create(master_id=request.POST['master_id'],
+        d = Orders(master_id=request.POST['master_id'],
                               client=request.user,
                               procedure_id=request.POST['proc_id'],
                               start_datetime=date)
-        print(d, 'here')
+        print(d.start_datetime)
+        d.save()
         return redirect('shop:client_orders')
 
 
