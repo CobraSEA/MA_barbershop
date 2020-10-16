@@ -73,10 +73,13 @@
                 <text x="50%" y="50%" fill="#eceeef" dy=".3em">{{ master.nick_name }}</text>
             </svg>
             <div class="card-body">
-              <p class="card-text">{{ master.first_name }}</p>
-                <text x="50%" y="50%" fill="#eceeef" dy=".3em">{{ master.get_level_display }}</text>
+              <p class="card-text">First name: {{ master.first_name }}</p>
+                <text x="50%" y="50%" fill="#eceeef" dy=".3em">Level: {{ master.get_level_display }}</text>
               <div class="d-flex justify-content-between align-items-center">
-                <small class="text-muted">{{ master_age }} </small>
+                <small class="text-muted"> Age: {{ master_age }} </small>
+              </div>
+                <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted"> Average rate: {{ avg_rate }} </small>
               </div>
             </div>
     </div>

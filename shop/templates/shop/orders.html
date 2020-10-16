@@ -95,6 +95,9 @@
         <button class="btn btn-sm btn-outline-secondary" type="submit" value="C" name="change_status">Cancel</button>
         <button class="btn btn-sm btn-outline-secondary" type="submit" value="P" name="change_status">Return planed</button>
           </tbody>
+            <form action=".">{% csrf_token %}
+            <button class="btn btn-sm btn-outline-secondary" type="submit" value="D" name="close_all">Close all for now</button>
+          </form>
         </table>
 		</form>
       </div>

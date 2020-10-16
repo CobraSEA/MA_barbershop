@@ -2,6 +2,8 @@ import datetime
 
 import pytz
 from django.contrib.auth import login, logout, authenticate, get_user_model
+from django.db import transaction
+from django.db.models import Count, Sum
 from django.forms import ModelForm, ModelChoiceField
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect
@@ -61,10 +63,21 @@ class AllOrdersView(generic.ListView):
 
 
 def change_order_status(request):
-    order = Orders.objects.get(pk=request.POST['order'])
-    order.status = request.POST['change_status']
-    order.save()
+    if request.method == 'POST':
+        if 'close_all' in request.POST.keys():
+            now = timezone.now()
+            orders = Orders.objects.select_for_update(nowait=True).filter(status='P', start_datetime__lte=now)
+            with transaction.atomic():
+                for order in orders:
+                    order.status = request.POST['close_all']
+                    order.save()
+
+        if 'change_status' in request.POST.keys():
+            order = Orders.objects.get(pk=request.POST['order'])
+            order.status = request.POST['change_status']
+            order.save()
     return HttpResponseRedirect(reverse('shop:all_orders'))
+
 
 def cancel_order(request, order_id):
     order = Orders.objects.get(pk=order_id)
@@ -72,6 +85,7 @@ def cancel_order(request, order_id):
         order.status = 'C'
         order.save()
     return HttpResponseRedirect(reverse('shop:client_orders'))
+
 
 class ProcDetailView(generic.DetailView):
     template_name = 'shop/proc.html'
@@ -106,6 +120,13 @@ class MasterDetailView(generic.DetailView):
         masters_comments = Comments.objects.filter(master=self.object).order_by('-insert_datetime')[:10]
         context['master_age'] = datetime.datetime.now().date().year - self.object.birthday.year
 
+        avg_qwr = Comments.objects.values('master')\
+            .annotate(rates=Count('rate'), sum_rate=Sum('rate'))\
+            .filter(master=self.object)
+        context['avg_rate'] = 0
+        if avg_qwr:
+            context['avg_rate'] = avg_qwr[0]['sum_rate'] / avg_qwr[0]['rates']
+
         rates = {}
         for rate in Comments.RATES:
             rt, rt_text = rate
@@ -116,12 +137,8 @@ class MasterDetailView(generic.DetailView):
         for c in masters_comments:
             comments[c.id] = c.client.first_name + ': ' + c.text
         context['comments'] = comments
-
         return context
 
-
-# def registration(request):
-#     if request.method == 'POST':
 
 def get_work_time_list():
     """
