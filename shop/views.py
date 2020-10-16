@@ -106,10 +106,17 @@ class MasterDetailView(generic.DetailView):
         masters_comments = Comments.objects.filter(master=self.object).order_by('-insert_datetime')[:10]
         context['master_age'] = datetime.datetime.now().date().year - self.object.birthday.year
 
+        rates = {}
+        for rate in Comments.RATES:
+            rt, rt_text = rate
+            rates[rt] = rt_text
+        context['rates'] = rates
+
         comments = {}
         for c in masters_comments:
             comments[c.id] = c.client.first_name + ': ' + c.text
         context['comments'] = comments
+
         return context
 
 
@@ -200,9 +207,7 @@ class CommentForm(ModelForm):
 
 def create_new_comment(request, master_id):
     if request.method == 'POST':
-        print(dir(request))
-        print(master_id, request.POST)
-        comment = Comments(master_id=master_id
+        comment = Comments(master_id=master_id, rate=request.POST['rate']
                            , client=request.user, text=request.POST['comment_text'])
         comment.save()
         return HttpResponseRedirect(reverse('shop:master_detail', args=[master_id]))
@@ -211,7 +216,7 @@ def create_new_comment(request, master_id):
         context = {'form': form}
         template_name = 'shop/create_comment.html'
 
-    return render(request, template_name, context)
+        return render(request, template_name, context)
 
 
 class CreateComment(generic.CreateView):
