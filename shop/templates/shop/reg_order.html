@@ -1,30 +1,113 @@
-<!DOCTYPE html>
+
+{% load static %}
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+  <head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
 
-{{ procedure.name }}
-{{ master.nick_name }}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.1.1">
+    <title>Pricing example · Bootstrap</title>
 
-<input type="datetime-local" name="start" value="{{ form.start }}">
-<p>{{ form.start_datetime }}</p>
-<p>{{ form.start }}</p>
-order registration
-<form action="{% url 'shop:reg_order' procedure.id master.id%}" method="post">{% csrf_token %}
-{% for t, dt in times.items %}
-    <p><input type="radio" id="times{{ forloop.counter }}" name="reg_date" value="{{ dt }}" >
-    <label for="times{{ forloop.counter }}">{{ t }}</label>
-    <input type="datetime-local" value="{{ dt }}"> {{ dt }}
-    </p>
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/pricing/">
 
-{% endfor %}
-    <input type="text" name="proc_id" value="{{ procedure.id }}" hidden>
-    <input type="text" name="master_id" value="{{ master.id }}" hidden>
-    <input type="submit" name="reg" value="register">
-</form>
+    <!-- Bootstrap core CSS -->
 
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+
+  </head>
+  <body>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+  <h5 class="my-0 mr-md-auto font-weight-normal">Barbershop</h5>
+  <nav class="my-2 my-md-0 mr-md-3">
+      <a class="p-2 text-dark" href="{% url 'shop:index' %}">Shop</a>
+      <a class="p-2 text-dark" href="{% url 'shop:masters' %}">Barbers</a>
+    {% if user.is_anonymous %}
+         <form method="POST" action="{% url 'shop:login' %}" style="display: inline-block">
+            {% csrf_token %}
+            <input id="log" type="text" name="user_name" value="{{ login }}" placeholder="User name" />
+            <input id="pas" type="password" name="password" value="{{ pass }}" placeholder="Password" />
+            <input class="btn btn-outline-primary" type="submit" value="Login" />
+            <a class="btn btn-outline-primary" href="{% url 'users:registration' %}">New user</a>
+        </form>
+    {% else %}
+        <a class="p-2 text-dark" href="{% url 'shop:client_orders' %}">Your orders</a>
+        {% if user.is_staff %}
+            <a class="p-2 text-dark" href="{% url 'shop:create_procedure' %}">Create new procedure</a>
+            <a class="p-2 text-dark" href="{% url 'shop:all_orders' %}">All orders</a>
+            <a class="p-2 text-dark" href="{% url 'users:all_users' %}">All users</a>
+        {% endif %}
+        Hello, {{ user }}
+            <a class="btn btn-outline-primary" type="submit" href="{% url 'shop:logout' %}">logout</a>
+    {% endif %}
+  </nav>
+
+</div>
+
+  <div class="col-md-4">
+    <div class="card mb-4 shadow-sm">
+            <svg class="bd-placeholder-img card-img-top" width="50%" height="225" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Thumbnail">
+                <title>Placeholder</title>
+                <rect width="100%" height="100%" fill="#55595c"/>
+                <text x="50%" y="50%" fill="#eceeef" dy=".3em">{{ master.nick_name }}</text>
+            </svg>
+            <div class="card-body">
+              <p class="card-text">{{ procedure.name }}</p>
+
+              <div class="d-flex justify-content-between align-items-center">
+
+              </div>
+            </div>
+    </div>
+    </div>
+
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+      <h2>Near times</h2>
+      <div class="table-responsive">
+		<form method="post" action="{% url 'shop:reg_order' procedure.id master.id %}">{% csrf_token %}
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+		  {% for t, dt in times.items %}
+            <tr>
+              <td><input type="radio" name="reg_date" id="order{{ forloop.counter }}" value="{{ dt }}">
+			  <label for="order{{ forloop.counter }}">{{ t }}</label></td>
+            </tr>
+          {% endfor %}
+            <input type="text" name="proc_id" value="{{ procedure.id }}" hidden>
+            <input type="text" name="master_id" value="{{ master.id }}" hidden>
+            <input class="btn btn-sm btn-outline-secondary" type="submit" name="reg" value="register">
+          </tbody>
+        </table>
+		</form>
+      </div>
+	</main>
+	</div>
 </body>
 </html>

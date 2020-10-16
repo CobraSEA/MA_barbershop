@@ -76,15 +76,19 @@
               <th>Barber</th>
               <th>Status</th>
               <th>Procedure</th>
+              <th> </th>
             </tr>
           </thead>
           <tbody>
 		  {% for order in order_list %}
             <tr>
               <td>{{ order.start_datetime }}</td>
-              <td>{{order.master.nick_name}}</td>
+              <td>{{ order.master.nick_name }}</td>
               <td>{{ order.get_status_display }}</td>
               <td>{{ order.procedure.name }}</td>
+              <td>{% if order.status == 'P' %}
+                  <a name="cancel" class="btn btn-sm btn-outline-secondary" href="{% url 'shop:cancel_order' order.id %}">Cancel</a>
+                    {% endif %}</td>
             </tr>
           {% endfor %}  
           </tbody>

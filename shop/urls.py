@@ -8,6 +8,7 @@ urlpatterns = [
     path('logout/', views.user_logout, name='logout'),
     path('reg_order/<int:proc_id>/<int:master_id>', views.reg_order, name='reg_order'),
     # path('registration/', views.registration, name='registration'),
+    path('cancel_order/<int:order_id>', views.cancel_order, name='cancel_order'),
     path('client_orders', views.ClientOrdersView.as_view(), name='client_orders'),
     path('all_orders/', views.AllOrdersView.as_view(), name='all_orders'),
     path('change_order_status/', views.change_order_status, name='change_order_status'),

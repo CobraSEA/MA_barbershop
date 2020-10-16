@@ -13,6 +13,10 @@ from users.models import User
 from Barber.settings import TIME_ZONE
 
 
+START_WORK_HOUR = 8
+END_WORK_HOUR = 23
+WORK_DAY_HOURS = 14
+
 class ProceduresView(generic.ListView):
     template_name = 'shop/index.html'
     model = Procedures
@@ -41,7 +45,7 @@ class ClientOrdersView(generic.ListView):
     context_object_name = 'order_list'
 
     def get_queryset(self):
-        return Orders.objects.filter(client=self.request.user.pk)
+        return Orders.objects.filter(client=self.request.user.pk).order_by('start_datetime')
 
 
 class AllOrdersView(generic.ListView):
@@ -57,12 +61,17 @@ class AllOrdersView(generic.ListView):
 
 
 def change_order_status(request):
-    print('change_order_status', request.POST)
     order = Orders.objects.get(pk=request.POST['order'])
     order.status = request.POST['change_status']
     order.save()
     return HttpResponseRedirect(reverse('shop:all_orders'))
 
+def cancel_order(request, order_id):
+    order = Orders.objects.get(pk=order_id)
+    if order.status == 'P':
+        order.status = 'C'
+        order.save()
+    return HttpResponseRedirect(reverse('shop:client_orders'))
 
 class ProcDetailView(generic.DetailView):
     template_name = 'shop/proc.html'
@@ -107,6 +116,27 @@ class MasterDetailView(generic.DetailView):
 # def registration(request):
 #     if request.method == 'POST':
 
+def get_work_time_list():
+    """
+    set current work day time list
+    :return: list of datetime.datetime
+    """
+    user_timezone = pytz.timezone(TIME_ZONE)
+    start = timezone.now().astimezone(user_timezone)
+    if start.hour >= END_WORK_HOUR:
+        start = start + datetime.timedelta(days=1)
+        start = start.replace(hour=START_WORK_HOUR, minute=0, second=0, microsecond=0)
+
+    if start.hour < START_WORK_HOUR:
+        start = start.replace(hour=START_WORK_HOUR, minute=0, second=0, microsecond=0)
+
+    if 0 < start.minute < 30:
+        start = start.replace(minute=30, second=0, microsecond=0)
+    else:
+        start = start.replace(hour=start.hour + 1, minute=0, second=0, microsecond=0)
+
+    end = start.replace(hour=END_WORK_HOUR - 1, minute=0, second=0, microsecond=0)
+    return [start + datetime.timedelta(minutes=x) for x in range(0, int((end - start).seconds / 60), 30)]
 
 
 class RegOrderForm(ModelForm):
@@ -118,7 +148,6 @@ def reg_order(request, proc_id, master_id):
     if request.method == 'GET':
         form = RegOrderForm()
         form.start = timezone.now()
-
         user_timezone = pytz.timezone(TIME_ZONE)
 
         context = {'form': form}
@@ -130,16 +159,19 @@ def reg_order(request, proc_id, master_id):
         if now.hour >= 23:
             now = datetime.datetime(now.year, now.month, now.day, 8, 0).astimezone(user_timezone)
 
-        master_exec_times = Orders.objects.filter(master=master_id, start_datetime__gte=now)
-        time_ex_list = [ex_time.start_datetime.astimezone(user_timezone) for ex_time in master_exec_times]
+        master_exec_times = Orders.objects.filter(master=master_id, start_datetime__gte=now, status='P')
+        time_ex_list_range = [[ex_time.start_datetime.astimezone(user_timezone), (ex_time.start_datetime
+                               + datetime.timedelta(minutes=ex_time.procedure.duration)).astimezone(user_timezone)] for ex_time in master_exec_times]
+
+        time_list = get_work_time_list()
+        lst_times = set([time for time in time_list for t_range in time_ex_list_range if t_range[0] <= time <= t_range[1]])
+        time_list = list(set(time_list) - lst_times)
+        time_list.sort()
 
         times = {}
-        time = datetime.datetime(now.year, now.month, now.day, now.hour + 1, 0).astimezone(user_timezone)
-        for i in range(now.hour + 1, 23, 1):
-            if time not in time_ex_list:
-                times[time.strftime('%H:%M')] = time.strftime("%Y-%m-%d %H:%M")
-            time += datetime.timedelta(hours=1)
-            # print(time.strftime('%H:%M'))
+        for time in time_list:
+            times[time.strftime('%H:%M')] = time.strftime("%Y-%m-%d %H:%M")
+
         context.update({'times': times})
 
         return render(request, 'shop/reg_order.html', context)
