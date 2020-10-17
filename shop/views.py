@@ -124,6 +124,7 @@ class MasterDetailView(generic.DetailView):
             .annotate(rates=Count('rate'), sum_rate=Sum('rate'))\
             .filter(master=self.object)
         context['avg_rate'] = 0
+
         if avg_qwr:
             context['avg_rate'] = avg_qwr[0]['sum_rate'] / avg_qwr[0]['rates']
 
