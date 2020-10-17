@@ -66,7 +66,7 @@ def change_order_status(request):
     if request.method == 'POST':
         if 'close_all' in request.POST.keys():
             now = timezone.now()
-            orders = Orders.objects.select_for_update(nowait=True).filter(status='P', start_datetime__lte=now)
+            orders = Orders.objects.select_for_update().filter(status='P', start_datetime__lte=now)
             with transaction.atomic():
                 for order in orders:
                     order.status = request.POST['close_all']
