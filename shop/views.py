@@ -3,9 +3,8 @@ import datetime
 import pytz
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.db import transaction
-from django.db.models import Count, Sum
 from django.forms import ModelForm, ModelChoiceField
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -63,7 +62,14 @@ class AllOrdersView(generic.ListView):
 
 
 def change_order_status(request):
+    """
+    change status of order to selected by admin user on form All Orders
+    :param request:
+    :return: refresh form
+    """
     if request.method == 'POST':
+
+        # if was selected close all orders from anytime till now
         if 'close_all' in request.POST.keys():
             now = timezone.now()
             orders = Orders.objects.select_for_update().filter(status='P', start_datetime__lte=now)
@@ -72,6 +78,7 @@ def change_order_status(request):
                     order.status = request.POST['close_all']
                     order.save()
 
+        # if was selected one of status for one record
         if 'change_status' in request.POST.keys():
             order = Orders.objects.get(pk=request.POST['order'])
             order.status = request.POST['change_status']
@@ -80,6 +87,12 @@ def change_order_status(request):
 
 
 def cancel_order(request, order_id):
+    """
+    cancel order by id (set status = 'C')
+    :param request: not used
+    :param order_id: id of selected order
+    :return: refresh
+    """
     order = Orders.objects.get(pk=order_id)
     if order.status == 'P':
         order.status = 'C'
@@ -93,11 +106,6 @@ class ProcDetailView(generic.DetailView):
     model = Procedures
     pk_url_kwarg = 'proc_id'
     extra_context = {'masters': User.objects.filter(is_master=True)}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        print(context)
-        return context
 
 
 class MastersView(generic.ListView):
@@ -117,24 +125,15 @@ class MasterDetailView(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        masters_comments = Comments.objects.filter(master=self.object).order_by('-insert_datetime')[:10]
-        context['master_age'] = datetime.datetime.now().date().year - self.object.birthday.year
 
-        avg_qwr = Comments.objects.values('master')\
-            .annotate(rates=Count('rate'), sum_rate=Sum('rate'))\
-            .filter(master=self.object)
-        context['avg_rate'] = 0
-
-        if avg_qwr:
-            context['avg_rate'] = avg_qwr[0]['sum_rate'] / avg_qwr[0]['rates']
-
-        rates = {}
+        rates = {}  # add rate list for user can select his choice
         for rate in Comments.RATES:
             rt, rt_text = rate
             rates[rt] = rt_text
         context['rates'] = rates
 
-        comments = {}
+        masters_comments = Comments.objects.filter(master=self.object).order_by('-insert_datetime')[:10]
+        comments = {}   # add 10 last comments for this master
         for c in masters_comments:
             comments[c.id] = c.client.first_name + ': ' + c.text
         context['comments'] = comments
@@ -164,25 +163,25 @@ def get_work_time_list():
     return [start + datetime.timedelta(minutes=x) for x in range(0, int((end - start).seconds / 60), 30)]
 
 
-class RegOrderForm(ModelForm):
-    class Meta:
-        model = Orders
-        fields = ['start_datetime']
+# class RegOrderForm(ModelForm):
+#     class Meta:
+#         model = Orders
+#         fields = ['start_datetime']
 
 def reg_order(request, proc_id, master_id):
     if request.method == 'GET':
-        form = RegOrderForm()
-        form.start = timezone.now()
+        # form = RegOrderForm()
+        # form.start = timezone.now()
         user_timezone = pytz.timezone(TIME_ZONE)
 
-        context = {'form': form}
+        # context = {'form': form}
         procedure = Procedures.objects.get(pk=proc_id)
         master = User.objects.get(pk=master_id)
-        context.update({'procedure': procedure, 'master': master})
+        context = {'procedure': procedure, 'master': master}
 
         now = timezone.now().astimezone(user_timezone)
-        if now.hour >= 23:
-            now = datetime.datetime(now.year, now.month, now.day, 8, 0).astimezone(user_timezone)
+        if now.hour >= END_WORK_HOUR:
+            now = datetime.datetime(now.year, now.month, now.day, START_WORK_HOUR, 0).astimezone(user_timezone)
 
         master_exec_times = Orders.objects.filter(master=master_id, start_datetime__gte=now, status='P')
         time_ex_list_range = [[ex_time.start_datetime.astimezone(user_timezone), (ex_time.start_datetime
@@ -213,7 +212,6 @@ def reg_order(request, proc_id, master_id):
         return redirect('shop:client_orders')
 
 
-
 class CommentForm(ModelForm):
     master = ModelChoiceField(queryset=User.objects.filter(is_master=True), required=True)
 
@@ -237,21 +235,8 @@ def create_new_comment(request, master_id):
         return render(request, template_name, context)
 
 
-class CreateComment(generic.CreateView):
-    template_name = 'shop/create_comment.html'
-    model = Comments
-    success_url = reverse_lazy('shop:masters')
-    # fields = '__all__'
-    fields = ['master', 'rate', 'text']
-    hidden_fields = ['client']
-
-    def get_initial(self):
-        print(self.request.user)
-        return {'client': self.request.user}
-
 def index(request):
     return render(request, 'shop/index.html')
-
 
 def user_login(request):
     if request.method == 'POST':
@@ -261,7 +246,6 @@ def user_login(request):
     else:
         pass
     return HttpResponseRedirect(reverse('shop:index'))
-
 
 def user_logout(request):
     logout(request)
