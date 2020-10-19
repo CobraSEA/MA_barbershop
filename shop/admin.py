@@ -19,7 +19,11 @@ class OrdersAdmin(admin.ModelAdmin):
     list_display = ('master', 'client', 'procedure', 'status', 'start_datetime', 'end_datetime')
     ordering = ('-start_datetime', )
 
+class CommentsAdmin(admin.ModelAdmin):
+    list_display = ('client', 'master', 'rate', 'insert_datetime')
+    ordering = ('-insert_datetime', )
+
 admin.site.register(Procedures, ProcedureAdmin)
-admin.site.register(Comments)
+admin.site.register(Comments, CommentsAdmin)
 admin.site.register(Orders, OrdersAdmin)
 # admin.site.register(ProcedureAdmin)
