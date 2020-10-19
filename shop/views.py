@@ -13,10 +13,11 @@ from .models import Procedures, Comments, Orders
 from users.models import User
 from Barber.settings import TIME_ZONE
 
-
 START_WORK_HOUR = 8
 END_WORK_HOUR = 23
 WORK_DAY_HOURS = 14
+USER_SCHEDULE_SLICE = 30
+
 
 class ProceduresView(generic.ListView):
     template_name = 'shop/index.html'
@@ -48,12 +49,16 @@ class ClientOrdersView(generic.ListView):
     def get_queryset(self):
         return Orders.objects.filter(client=self.request.user.pk).order_by('start_datetime')
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        print(context)
+        return context
 
 class AllOrdersView(generic.ListView):
     template_name = 'shop/orders.html'
     context_object_name = 'order_list'
     model = Orders
-    ordering = 'start_datetime'
+    ordering = '-start_datetime'
 
     def get(self, request, *args, **kwargs):
         if request.user.is_staff:
@@ -83,6 +88,7 @@ def change_order_status(request):
             order = Orders.objects.get(pk=request.POST['order'])
             order.status = request.POST['change_status']
             order.save()
+
     return HttpResponseRedirect(reverse('shop:all_orders'))
 
 
@@ -93,6 +99,7 @@ def cancel_order(request, order_id):
     :param order_id: id of selected order
     :return: refresh
     """
+    # print(request)
     order = Orders.objects.get(pk=order_id)
     if order.status == 'P':
         order.status = 'C'
@@ -105,7 +112,14 @@ class ProcDetailView(generic.DetailView):
     context_object_name = 'procedure'
     model = Procedures
     pk_url_kwarg = 'proc_id'
-    extra_context = {'masters': User.objects.filter(is_master=True)}
+    # extra_context = {'masters': User.objects.filter(is_master=True)}
+
+    # delete me from masters list if I master
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # context['masters'] = context['masters'].exclude(pk=self.request.user.pk)
+        context['masters'] = User.objects.filter(is_master=True).exclude(pk=self.request.user.pk)
+        return context
 
 
 class MastersView(generic.ListView):
@@ -113,7 +127,7 @@ class MastersView(generic.ListView):
     context_object_name = 'masters_list'
 
     def get_queryset(self):
-        return User.objects.filter(is_master=True)
+        return User.objects.filter(is_master=True).exclude(pk=self.request.user.pk)
 
 
 class MasterDetailView(generic.DetailView):
@@ -140,13 +154,12 @@ class MasterDetailView(generic.DetailView):
         return context
 
 
-def get_work_time_list():
+def get_work_time_list(start):
     """
-    set current work day time list
-    :return: list of datetime.datetime
+    set current work day time list for a day
+    :return: set of datetime.datetime
     """
-    user_timezone = pytz.timezone(TIME_ZONE)
-    start = timezone.now().astimezone(user_timezone)
+
     if start.hour >= END_WORK_HOUR:
         start = start + datetime.timedelta(days=1)
         start = start.replace(hour=START_WORK_HOUR, minute=0, second=0, microsecond=0)
@@ -154,42 +167,49 @@ def get_work_time_list():
     if start.hour < START_WORK_HOUR:
         start = start.replace(hour=START_WORK_HOUR, minute=0, second=0, microsecond=0)
 
-    if 0 < start.minute < 30:
-        start = start.replace(minute=30, second=0, microsecond=0)
+    if 0 < start.minute < USER_SCHEDULE_SLICE:
+        start = start.replace(minute=USER_SCHEDULE_SLICE, second=0, microsecond=0)
     else:
         start = start.replace(hour=start.hour + 1, minute=0, second=0, microsecond=0)
 
     end = start.replace(hour=END_WORK_HOUR - 1, minute=0, second=0, microsecond=0)
-    return [start + datetime.timedelta(minutes=x) for x in range(0, int((end - start).seconds / 60), 30)]
+    return set(
+        [start + datetime.timedelta(minutes=t_minutes)
+         for t_minutes in range(0, int((end - start).seconds / 60), USER_SCHEDULE_SLICE)])
 
-
-# class RegOrderForm(ModelForm):
-#     class Meta:
-#         model = Orders
-#         fields = ['start_datetime']
 
 def reg_order(request, proc_id, master_id):
     if request.method == 'GET':
-        # form = RegOrderForm()
-        # form.start = timezone.now()
-        user_timezone = pytz.timezone(TIME_ZONE)
 
-        # context = {'form': form}
+        user_timezone = pytz.timezone(TIME_ZONE)
         procedure = Procedures.objects.get(pk=proc_id)
         master = User.objects.get(pk=master_id)
         context = {'procedure': procedure, 'master': master}
 
-        now = timezone.now().astimezone(user_timezone)
-        if now.hour >= END_WORK_HOUR:
-            now = datetime.datetime(now.year, now.month, now.day, START_WORK_HOUR, 0).astimezone(user_timezone)
+        if not request.GET:
+            now = timezone.now().astimezone(user_timezone)
+            context.update({'cur_date': now.strftime("%Y-%m-%d")})
+        else:
+            now = datetime.datetime.strptime(request.GET['cur_date'], "%Y-%m-%d").astimezone(user_timezone)
+            now += datetime.timedelta(days=int(request.GET['change_date']))
+            now = now.replace(hour=START_WORK_HOUR, minute=0, second=0, microsecond=0)
+            if now < timezone.now().astimezone(user_timezone):
+                now = timezone.now().astimezone(user_timezone)
+            context.update({'cur_date': now.strftime("%Y-%m-%d")})
 
-        master_exec_times = Orders.objects.filter(master=master_id, start_datetime__gte=now, status='P')
-        time_ex_list_range = [[ex_time.start_datetime.astimezone(user_timezone), (ex_time.start_datetime
-                               + datetime.timedelta(minutes=ex_time.procedure.duration)).astimezone(user_timezone)] for ex_time in master_exec_times]
+        # if now.hour >= END_WORK_HOUR:
+        #     now = datetime.datetime(now.year, now.month, now.day, START_WORK_HOUR, 0).astimezone(user_timezone)
 
-        time_list = get_work_time_list()
-        lst_times = set([time for time in time_list for t_range in time_ex_list_range if t_range[0] <= time <= t_range[1]])
-        time_list = list(set(time_list) - lst_times)
+        master_ordered_times = Orders.objects.filter(master=master_id, start_datetime__gte=now, status='P')
+
+        time_list = get_work_time_list(now)
+        time_stop_list = set(
+            [time for time in time_list
+                    for m_time in master_ordered_times
+                        if m_time.start_datetime <= time <= m_time.end_datetime]
+        )
+
+        time_list = list(time_list - time_stop_list)
         time_list.sort()
 
         times = {}
@@ -197,17 +217,14 @@ def reg_order(request, proc_id, master_id):
             times[time.strftime('%H:%M')] = time.strftime("%Y-%m-%d %H:%M")
 
         context.update({'times': times})
-
         return render(request, 'shop/reg_order.html', context)
     else:
-        # print(request.POST)
         date = datetime.datetime.strptime(request.POST['reg_date'], "%Y-%m-%d %H:%M")
-        print(date)
-        d = Orders(master_id=request.POST['master_id'],
-                              client=request.user,
-                              procedure_id=request.POST['proc_id'],
-                              start_datetime=date)
-        print(d.start_datetime)
+        d = Orders(master_id=request.POST['master_id']
+                   , client=request.user
+                   , procedure_id=request.POST['proc_id']
+                   , start_datetime=date
+                   )
         d.save()
         return redirect('shop:client_orders')
 
