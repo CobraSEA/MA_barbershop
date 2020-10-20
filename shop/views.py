@@ -3,7 +3,6 @@ import datetime
 import pytz
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.db import transaction
-from django.forms import ModelForm, ModelChoiceField
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
@@ -210,9 +209,7 @@ def reg_order(request, proc_id, master_id):
         # set time steps when master is busy
         time_list = get_work_time_list(now)
         time_stop_list = set(
-            [time for time in time_list
-                    for m_time in master_ordered_times
-                        if m_time.start_datetime <= time <= m_time.end_datetime]
+            [time for time in time_list for m_time in master_ordered_times if m_time.start_datetime <= time <= m_time.end_datetime]
         )
 
         # delete them from available time list
