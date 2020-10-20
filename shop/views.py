@@ -14,7 +14,6 @@ from Barber.settings import TIME_ZONE
 
 START_WORK_HOUR = 8
 END_WORK_HOUR = 23
-WORK_DAY_HOURS = 14
 USER_SCHEDULE_SLICE = 30
 
 
@@ -35,7 +34,6 @@ class CreateProcedure(generic.CreateView):
     fields = '__all__'
 
     def get(self, request, *args, **kwargs):
-        print(request.user.is_staff)
         if request.user.is_staff:
             return super().get(request, *args, **kwargs)
         return HttpResponseRedirect(reverse('shop:index'))
@@ -50,7 +48,6 @@ class ClientOrdersView(generic.ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        print(context)
         return context
 
 class AllOrdersView(generic.ListView):
