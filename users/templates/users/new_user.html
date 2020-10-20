@@ -14,10 +14,8 @@
     <meta name="generator" content="Jekyll v4.1.1">
     <title>Checkout example · Bootstrap</title>
 
-    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/checkout/">
 
     <!-- Bootstrap core CSS -->
-<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
       .bd-placeholder-img {
@@ -36,16 +34,16 @@
       }
     </style>
     <!-- Custom styles for this template -->
-    <link href="form-validation.css" rel="stylesheet">
+    <link href="{% static "users/form-validation.css" %}" rel="stylesheet">
   </head>
   <body class="bg-light">
     {% if form.errors %}<p><strong>{{ form.errors }}</strong></p>{% endif %}
   {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
     <div class="container">
         <div class="py-5 text-center">
-            <img class="d-block mx-auto mb-4" src="../assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+            <img class="mb-4" src="{% static "users/bootstrap-solid.jpg" %}" alt="" width="72" height="72">
             <h2>Checkout form</h2>
-            <p class="lead">Below is an example form built entirely with Bootstrap’s form controls. Each required form group has a validation state that can be triggered by attempting to submit the form without completing it.</p>
+            <p class="lead">Please fill out the registration form</p>
         </div>
 
   <div class="row">

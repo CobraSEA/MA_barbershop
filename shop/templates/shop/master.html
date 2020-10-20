@@ -59,7 +59,7 @@
             <a class="p-2 text-dark" href="{% url 'shop:all_orders' %}">All orders</a>
             <a class="p-2 text-dark" href="{% url 'users:all_users' %}">All users</a>
         {% endif %}
-        Hello, {{ user }}
+        Hello, {{ user.first_name }}
             <a class="btn btn-outline-primary" type="submit" href="{% url 'shop:logout' %}">logout</a>
     {% endif %}
   </nav>
@@ -92,6 +92,7 @@
 
         </div>
         <div class="col-md-4">
+            {% if user.is_authenticated %}
             <form method="post" action="{% url 'shop:create_comment' master.id %}">{% csrf_token %}
                 <textarea name="comment_text" cols="40" rows="8" resize="none" placeholder="comment here"></textarea></p>
                 <p><input class="btn btn-sm btn-outline-secondary" type="submit" value="Add">
@@ -101,7 +102,7 @@
                     {% endfor %}
                 </p>
             </form>
-
+            {% endif %}
         </div>
     </div>
 {% if procedures %}

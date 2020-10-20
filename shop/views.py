@@ -25,7 +25,7 @@ class ProceduresView(generic.ListView):
     context_object_name = 'procedures_list'
 
     def get_queryset(self):
-        query = Procedures.objects.all()
+        query = Procedures.objects.all().order_by('-price', '-duration')
         return query
 
 
@@ -99,7 +99,7 @@ def cancel_order(request, order_id):
     :param order_id: id of selected order
     :return: refresh
     """
-    # print(request)
+
     order = Orders.objects.get(pk=order_id)
     if order.status == 'P':
         order.status = 'C'
@@ -117,7 +117,6 @@ class ProcDetailView(generic.DetailView):
     # delete me from masters list if I master
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context['masters'] = context['masters'].exclude(pk=self.request.user.pk)
         context['masters'] = User.objects.filter(is_master=True).exclude(pk=self.request.user.pk)
         return context
 
@@ -156,7 +155,7 @@ class MasterDetailView(generic.DetailView):
 
 def get_work_time_list(start):
     """
-    set current work day time list for a day
+    set work time list for a day
     :return: set of datetime.datetime
     """
 
@@ -179,6 +178,14 @@ def get_work_time_list(start):
 
 
 def reg_order(request, proc_id, master_id):
+    """
+    GET: set actual time list for selected master on selected date
+    POST: create order with chiced master, procedure and time
+    :param request:
+    :param proc_id:
+    :param master_id:
+    :return:
+    """
     if request.method == 'GET':
 
         user_timezone = pytz.timezone(TIME_ZONE)
@@ -186,10 +193,10 @@ def reg_order(request, proc_id, master_id):
         master = User.objects.get(pk=master_id)
         context = {'procedure': procedure, 'master': master}
 
-        if not request.GET:
+        if not request.GET:     # when first request.GET is empty
             now = timezone.now().astimezone(user_timezone)
             context.update({'cur_date': now.strftime("%Y-%m-%d")})
-        else:
+        else:       # next times when date changed get now from it
             now = datetime.datetime.strptime(request.GET['cur_date'], "%Y-%m-%d").astimezone(user_timezone)
             now += datetime.timedelta(days=int(request.GET['change_date']))
             now = now.replace(hour=START_WORK_HOUR, minute=0, second=0, microsecond=0)
@@ -197,11 +204,10 @@ def reg_order(request, proc_id, master_id):
                 now = timezone.now().astimezone(user_timezone)
             context.update({'cur_date': now.strftime("%Y-%m-%d")})
 
-        # if now.hour >= END_WORK_HOUR:
-        #     now = datetime.datetime(now.year, now.month, now.day, START_WORK_HOUR, 0).astimezone(user_timezone)
-
+        # take all orders when master will busy
         master_ordered_times = Orders.objects.filter(master=master_id, start_datetime__gte=now, status='P')
 
+        # set time steps when master is busy
         time_list = get_work_time_list(now)
         time_stop_list = set(
             [time for time in time_list
@@ -209,6 +215,7 @@ def reg_order(request, proc_id, master_id):
                         if m_time.start_datetime <= time <= m_time.end_datetime]
         )
 
+        # delete them from available time list
         time_list = list(time_list - time_stop_list)
         time_list.sort()
 
@@ -220,36 +227,38 @@ def reg_order(request, proc_id, master_id):
         return render(request, 'shop/reg_order.html', context)
     else:
         date = datetime.datetime.strptime(request.POST['reg_date'], "%Y-%m-%d %H:%M")
-        d = Orders(master_id=request.POST['master_id']
-                   , client=request.user
-                   , procedure_id=request.POST['proc_id']
-                   , start_datetime=date
-                   )
-        d.save()
+        if request.user.is_authenticated:
+            d = Orders(master_id=request.POST['master_id']
+                       , client=request.user
+                       , procedure_id=request.POST['proc_id']
+                       , start_datetime=date
+                       )
+            d.save()
         return redirect('shop:client_orders')
 
 
-class CommentForm(ModelForm):
-    master = ModelChoiceField(queryset=User.objects.filter(is_master=True), required=True)
-
-    class Meta:
-        model = Comments
-        fields = ['master', 'rate', 'text']
-        hidden_fields = ['client']
+# class CommentForm(ModelForm):
+#     master = ModelChoiceField(queryset=User.objects.filter(is_master=True), required=True)
+#
+#     class Meta:
+#         model = Comments
+#         fields = ['master', 'rate', 'text']
+#         hidden_fields = ['client']
 
 
 def create_new_comment(request, master_id):
     if request.method == 'POST':
-        comment = Comments(master_id=master_id, rate=request.POST['rate']
-                           , client=request.user, text=request.POST['comment_text'])
-        comment.save()
+        if request.user.is_authenticated:
+            comment = Comments(master_id=master_id, rate=request.POST['rate']
+                               , client=request.user, text=request.POST['comment_text'])
+            comment.save()
         return HttpResponseRedirect(reverse('shop:master_detail', args=[master_id]))
-    else:
-        form = CommentForm()
-        context = {'form': form}
-        template_name = 'shop/create_comment.html'
+    # else:
+        # form = CommentForm()
+        # context = {'form': form}
+        # template_name = 'shop/create_comment.html'
 
-        return render(request, template_name, context)
+        # return render(request, template_name, context)
 
 
 def index(request):

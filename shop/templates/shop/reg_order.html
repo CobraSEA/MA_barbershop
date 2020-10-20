@@ -59,7 +59,7 @@
             <a class="p-2 text-dark" href="{% url 'shop:all_orders' %}">All orders</a>
             <a class="p-2 text-dark" href="{% url 'users:all_users' %}">All users</a>
         {% endif %}
-        Hello, {{ user }}
+        Hello, {{ user.first_name }}
             <a class="btn btn-outline-primary" type="submit" href="{% url 'shop:logout' %}">logout</a>
     {% endif %}
   </nav>
@@ -108,7 +108,11 @@
           {% endfor %}
             <input type="text" name="proc_id" value="{{ procedure.id }}" hidden>
             <input type="text" name="master_id" value="{{ master.id }}" hidden>
+          {% if user.is_anonymous %}
+            <h4>You need to login for registration</h4>
+          {% else %}
             <input lass="btn btn-outline-primary" type="submit" name="reg" value="register">
+          {% endif %}
           </tbody>
         </table>
 		</form>

@@ -57,7 +57,7 @@
             <a class="p-2 text-dark" href="{% url 'shop:all_orders' %}">All orders</a>
             <a class="p-2 text-dark" href="{% url 'users:all_users' %}">All users</a>
         {% endif %}
-        Hello, {{ user }}
+        Hello, {{ user.first_name }}
             <a class="btn btn-outline-primary" type="submit" href="{% url 'shop:logout' %}">logout</a>
     {% endif %}
   </nav>
