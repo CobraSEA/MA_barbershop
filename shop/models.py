@@ -13,6 +13,7 @@ class Procedures(models.Model):
 
 
 class Orders(models.Model):
+    RATES = ((5, 'Excelent'), (4, 'Good'), (3, 'Not bad'), (2, 'Bad'), (1, 'Horribly'), (0, 'Not rated'))
     STATUSES = (
         ('P', 'planed'),
         ('D', 'done'),
@@ -23,6 +24,8 @@ class Orders(models.Model):
     procedure = models.ForeignKey(Procedures, on_delete=models.CASCADE)
     start_datetime = models.DateTimeField(auto_now_add=False)
     status = models.CharField(max_length=1, choices=STATUSES, default='P')
+    rate = models.SmallIntegerField(default=0, choices=RATES)
+
 
     @property
     def end_datetime(self):

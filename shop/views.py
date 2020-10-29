@@ -48,7 +48,22 @@ class ClientOrdersView(generic.ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
+        rates = {}  # add rate list for user can select his choice
+        for rate in Orders.RATES[:-1]:
+            rt, rt_text = rate
+            rates[rt] = rt_text
+        context['rates'] = rates
         return context
+
+
+def set_rates(request):
+    if request.method == 'POST':
+        if 'rate' in request.POST.keys():
+            order = Orders.objects.get(pk=request.POST['order_pk'])
+            order.rate = request.POST['rate']
+            order.save()
+    return HttpResponseRedirect(reverse('shop:client_orders'))
+
 
 class AllOrdersView(generic.ListView):
     template_name = 'shop/orders.html'

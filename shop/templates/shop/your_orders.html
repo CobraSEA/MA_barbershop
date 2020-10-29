@@ -84,11 +84,21 @@
               <td>{{ order.master.nick_name }}</td>
               <td>{{ order.get_status_display }}</td>
               <td>{{ order.procedure.name }}</td>
+              <td>{% if order.status == 'D' %}
+                    <form method="post" action="{% url 'shop:set_rates' %}">{% csrf_token %}
+                    {% for rt, rt_text in rates.items %}
+                        <input type="radio" name="rate" id="rate{{order.id}}_{{forloop.counter}}" value="{{ rt }}" {% if rt == order.rate %} checked="true" {% endif %}>
+                      <label for="rate{{order.id}}_{{forloop.counter}}">{{ rt_text }} </label>
+                    {% endfor %}
+                        <input name="order_pk" value="{{order.pk}}" hidden>
+                        <input type="submit" value="rate">
+                    </form>
+                  {% endif %}</td>
               <td>{% if order.status == 'P' %}
                   <a name="cancel" class="btn btn-sm btn-outline-secondary" href="{% url 'shop:cancel_order' order.id %}">Cancel</a>
                   {% endif %}</td>
             </tr>
-          {% endfor %}  
+          {% endfor %}
           </tbody>
         </table>
       </div>
