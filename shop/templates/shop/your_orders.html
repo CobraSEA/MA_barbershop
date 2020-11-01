@@ -74,7 +74,7 @@
               <th>Barber</th>
               <th>Status</th>
               <th>Procedure</th>
-              <th> </th>
+              <th>Your rate</th>
             </tr>
           </thead>
           <tbody>
@@ -86,12 +86,16 @@
               <td>{{ order.procedure.name }}</td>
               <td>{% if order.status == 'D' %}
                     <form method="post" action="{% url 'shop:set_rates' %}">{% csrf_token %}
-                    {% for rt, rt_text in rates.items %}
-                        <input type="radio" name="rate" id="rate{{order.id}}_{{forloop.counter}}" value="{{ rt }}" {% if rt == order.rate %} checked="true" {% endif %}>
-                      <label for="rate{{order.id}}_{{forloop.counter}}">{{ rt_text }} </label>
-                    {% endfor %}
-                        <input name="order_pk" value="{{order.pk}}" hidden>
-                        <input type="submit" value="rate">
+                    {% if order.rate <= 0 %}
+                        {% for rt, rt_text in rates.items %}
+                            <input type="radio" name="rate" id="rate{{order.id}}_{{forloop.counter}}" value="{{ rt }}" {% if rt == order.rate %} checked="true" {% endif %}>
+                          <label for="rate{{order.id}}_{{forloop.counter}}">{{ rt_text }} </label>
+                        {% endfor %}
+                            <input name="order_pk" value="{{order.pk}}" hidden>
+                            <input type="submit" value="rate">
+                    {% else %}
+                        {{ order.get_rate_display }}
+                    {% endif %}
                     </form>
                   {% endif %}</td>
               <td>{% if order.status == 'P' %}

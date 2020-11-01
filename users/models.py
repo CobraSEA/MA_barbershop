@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import Count, Sum
 from django.utils import timezone
 
-from shop.models import Comments
+from shop.models import Orders
 
 
 class User(AbstractUser):
@@ -33,8 +33,8 @@ class User(AbstractUser):
     @property
     def ratio(self):
         if self.is_master:
-            avg_qwr = Comments.objects.values('master') \
-                .annotate(rates=Count('rate'), sum_rate=Sum('rate')).filter(master=self)
+            avg_qwr = Orders.objects.values('master') \
+                .annotate(rates=Count('rate'), sum_rate=Sum('rate')).filter(master=self, rate__gt=0)
             if avg_qwr:
                 return round(avg_qwr[0]['sum_rate'] / avg_qwr[0]['rates'], 2)
         return None
