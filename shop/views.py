@@ -58,7 +58,7 @@ class ClientOrdersView(generic.ListView):
 
 def set_rates(request):
     if request.method == 'POST':
-        if 'rate' in request.POST.keys():
+        if request.POST.get('rate'):
             order = Orders.objects.get(pk=request.POST['order_pk'])
             order.rate = request.POST['rate']
             order.save()
@@ -86,7 +86,7 @@ def change_order_status(request):
     if request.method == 'POST':
 
         # if was selected close all orders from anytime till now
-        if 'close_all' in request.POST.keys():
+        if request.POST.get('close_all'):
             now = timezone.now()
             orders = Orders.objects.select_for_update().filter(status='P', start_datetime__lte=now)
             with transaction.atomic():
