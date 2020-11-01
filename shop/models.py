@@ -48,5 +48,5 @@ class MasterProcedure(models.Model):
     master = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     procedure = models.ForeignKey(Procedures, on_delete=models.CASCADE)
 
-    class Meta:
-        unique_together = ('master_id', 'procedure_id')
+    # class Meta:
+    #     unique_together = ('master_id', 'procedure_id')
