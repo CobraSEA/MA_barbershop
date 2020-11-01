@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views import generic
-from .models import Procedures, Comments, Orders
+from .models import Procedures, Comments, Orders, MasterProcedure
 from users.models import User
 from Barber.settings import TIME_ZONE
 
@@ -128,7 +128,9 @@ class ProcDetailView(generic.DetailView):
     # delete me from masters list if I master
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['masters'] = User.objects.filter(is_master=True).exclude(pk=self.request.user.pk)
+        available_user_proc = MasterProcedure.objects.filter(procedure=context['object']).values('master_id')
+        context['masters'] = User.objects.filter(is_master=True, pk__in=available_user_proc).exclude(pk=self.request.user.pk)
+
         return context
 
 
@@ -145,22 +147,19 @@ class MasterDetailView(generic.DetailView):
     pk_url_kwarg = 'master_id'
     template_name = 'shop/master.html'
     context_object_name = 'master'
-    extra_context = {'procedures': Procedures.objects.all()}
+    # extra_context = {'procedures': Procedures.objects.all()}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        rates = {}  # add rate list for user can select his choice
-        for rate in Comments.RATES:
-            rt, rt_text = rate
-            rates[rt] = rt_text
-        context['rates'] = rates
 
         masters_comments = Comments.objects.filter(master=self.object).order_by('-insert_datetime')[:10]
         comments = {}   # add 10 last comments for this master
         for c in masters_comments:
             comments[c.id] = c.client.first_name + ': ' + c.text
         context['comments'] = comments
+
+        available_procedures = MasterProcedure.objects.filter(master=self.object).values('procedure_id')
+        context['procedures'] = Procedures.objects.filter(pk__in=available_procedures)
         return context
 
 
