@@ -49,4 +49,4 @@ class MasterProcedure(models.Model):
     procedure = models.ForeignKey(Procedures, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('master_id', 'procedure_id')
+        unique_together = ('master', 'procedure')
