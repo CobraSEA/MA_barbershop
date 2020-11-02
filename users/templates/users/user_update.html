@@ -15,7 +15,7 @@
     <meta name="generator" content="Jekyll v4.1.1">
     <title>Pricing example · Bootstrap</title>
 
-    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/pricing/">
+
     <!-- Bootstrap core CSS -->
     <style>
       .bd-placeholder-img {
@@ -66,12 +66,14 @@
 
     {{ form.as_p }}
     <div>
+        {% if object.is_master %}
         <legend>Chose procedures for master</legend>
     {% for proc, check in master_proc.items %}
-        <div><input type="checkbox" id="proc{{ forloop.counter }}" name="{{ proc }}" {%if check %}checked {% endif %}>
+        <div><input type="checkbox" id="proc{{ forloop.counter }}" name="{{ proc }}" value="{{ check }}" {%if check %}checked {% endif %}>
         <label for="proc{{ forloop.counter }}">{{ proc }}</label></div>
     {% endfor %}
     </div>
+        {% endif %}
     <input class="btn btn-outline-primary" type="submit" name="Save">
     </form>
 
