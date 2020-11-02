@@ -4,6 +4,9 @@ from django.urls import reverse_lazy, reverse
 from django.views import generic
 from users.forms import MyUserForm
 from users.models import User
+from shop.models import MasterProcedure, Procedures
+
+
 
 class CreateUserView(generic.CreateView):
     form_class = MyUserForm
@@ -34,5 +37,15 @@ class UserUpdateView(generic.edit.UpdateView):
     success_url = reverse_lazy('users:all_users')
     template_name = 'users/user_update.html'
 
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        procedures = Procedures.objects.all()
+        master_proc = MasterProcedure.objects.filter(master=self.object)
+        master_procedure = {}
+        for p in procedures:
+            master_procedure[p.name] = bool(p.pk in [t.procedure_id for t in master_proc])
+        context['master_proc'] = master_procedure
+        return context
 
 

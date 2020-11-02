@@ -65,8 +65,16 @@
     <form method="post">{% csrf_token %}
 
     {{ form.as_p }}
+    <div>
+        <legend>Chose procedures for master</legend>
+    {% for proc, check in master_proc.items %}
+        <div><input type="checkbox" id="proc{{ forloop.counter }}" name="{{ proc }}" {%if check %}checked {% endif %}>
+        <label for="proc{{ forloop.counter }}">{{ proc }}</label></div>
+    {% endfor %}
+    </div>
     <input class="btn btn-outline-primary" type="submit" name="Save">
     </form>
+
   </div>
 
   </body>
