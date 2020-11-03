@@ -38,8 +38,8 @@ class UserUpdateView(generic.edit.UpdateView):
     template_name = 'users/user_update.html'
     # extra_context = {'procedures': Procedures.objects.all()}
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         master_proc = [t.procedure_id for t in MasterProcedure.objects.filter(master=self.object)]
         context['procedures'] = Procedures.objects.all()
         master_procedure = {}
