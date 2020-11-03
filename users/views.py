@@ -40,10 +40,10 @@ class UserUpdateView(generic.edit.UpdateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        master_proc = MasterProcedure.objects.filter(master=self.object)
+        master_proc = [t.procedure_id for t in MasterProcedure.objects.filter(master=self.object)]
         master_procedure = {}
         for p in context['procedures']:
-            master_procedure[p.name] = p.pk in [t.procedure_id for t in master_proc]
+            master_procedure[p.name] = p.pk in master_proc
         context['master_proc'] = master_procedure
         context.pop('user')
         return context

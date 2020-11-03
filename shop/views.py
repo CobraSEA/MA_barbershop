@@ -38,6 +38,13 @@ class CreateProcedure(generic.CreateView):
             return super().get(request, *args, **kwargs)
         return HttpResponseRedirect(reverse('shop:index'))
 
+    def post(self, request, *args, **kwargs):
+        result = super().post(request, *args, **kwargs)
+        masters = User.objects.filter(is_master=True)
+        for m in masters:
+            MasterProcedure.objects.create(master=m, procedure=self.object)
+        return result
+
 
 class ClientOrdersView(generic.ListView):
     template_name = 'shop/your_orders.html'
