@@ -36,11 +36,12 @@ class UserUpdateView(generic.edit.UpdateView):
     fields = ['is_master', 'is_staff', 'nick_name', 'level']
     success_url = reverse_lazy('users:all_users')
     template_name = 'users/user_update.html'
-    extra_context = {'procedures': Procedures.objects.all()}
+    # extra_context = {'procedures': Procedures.objects.all()}
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         master_proc = [t.procedure_id for t in MasterProcedure.objects.filter(master=self.object)]
+        context['procedures'] = Procedures.objects.all()
         master_procedure = {}
         for p in context['procedures']:
             master_procedure[p.name] = p.pk in master_proc
