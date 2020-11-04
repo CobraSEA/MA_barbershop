@@ -264,8 +264,7 @@ def reg_order(request, proc_id, master_id):
 def create_new_comment(request, master_id):
     if request.method == 'POST':
         if request.user.is_authenticated:
-            comment = Comments(master_id=master_id, rate=request.POST['rate']
-                               , client=request.user, text=request.POST['comment_text'])
+            comment = Comments(master_id=master_id, client=request.user, text=request.POST['comment_text'])
             comment.save()
         return HttpResponseRedirect(reverse('shop:master_detail', args=[master_id]))
     # else:
