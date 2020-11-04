@@ -74,6 +74,7 @@
 			  <th>Client</th>
               <th>Procedure</th>
 			  <th>Status</th>
+              <th>Rate</th>
             </tr>
           </thead>
           <tbody>
@@ -85,6 +86,7 @@
 			  <td>{{ order.client.username }}</td>
               <td>{{ order.procedure.name }}</td>
 			  <td>{{ order.get_status_display }}</td>
+              <td>{{ order.get_rate_display }}</td>
             </tr>
           {% endfor %}
         <button class="btn btn-sm btn-outline-secondary" type="submit" value="D" name="change_status">Done</button>

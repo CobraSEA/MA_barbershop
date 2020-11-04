@@ -18,7 +18,7 @@ class ProcedureAdmin(admin.ModelAdmin):
 
 
 class OrdersAdmin(admin.ModelAdmin):
-    list_display = ('master', 'client', 'procedure', 'status', 'start_datetime', 'end_datetime')
+    list_display = ('master', 'client', 'procedure', 'status', 'start_datetime', 'end_datetime', 'rate')
     ordering = ('-start_datetime', )
 
 
