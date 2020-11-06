@@ -1,6 +1,7 @@
 import datetime
 
 import pytz
+from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.db import transaction
 from django.shortcuts import render, redirect
@@ -20,7 +21,7 @@ USER_SCHEDULE_SLICE = 30
 class ProceduresView(generic.ListView):
     template_name = 'shop/index.html'
     model = Procedures
-    context_object_name = 'procedures_list'
+    # context_object_name = 'proc_list'
 
     def get_queryset(self):
         query = Procedures.objects.all().order_by('-price', '-duration')
@@ -283,8 +284,8 @@ def user_login(request):
         user = authenticate(username=request.POST['user_name'], password=request.POST['password'])
         if user is not None:
             login(request, user)
-    else:
-        pass
+        else:
+            messages.add_message(request, messages.ERROR, 'Wrong username or password')
     return HttpResponseRedirect(reverse('shop:index'))
 
 def user_logout(request):
