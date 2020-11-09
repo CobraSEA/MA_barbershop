@@ -244,10 +244,10 @@ def reg_order(request, proc_id, master_id):
     else:
         date = datetime.datetime.strptime(request.POST['reg_date'], "%Y-%m-%d %H:%M")
         if request.user.is_authenticated:
-            d = Orders(master_id=request.POST['master_id']
-                       , client=request.user
-                       , procedure_id=request.POST['proc_id']
-                       , start_datetime=date
+            d = Orders(master_id=request.POST['master_id'],
+                       client=request.user,
+                       procedure_id=request.POST['proc_id'],
+                       start_datetime=date
                        )
             d.save()
         return redirect('shop:client_orders')
@@ -285,7 +285,7 @@ def user_login(request):
         if user is not None:
             login(request, user)
         else:
-            messages.add_message(request, messages.ERROR, 'Wrong username or password')
+            messages.add_message(request, messages.ERROR, 'Wrong user name or password')
     return HttpResponseRedirect(reverse('shop:index'))
 
 def user_logout(request):
