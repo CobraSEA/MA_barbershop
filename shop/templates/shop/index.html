@@ -110,9 +110,8 @@
             <svg class="bd-placeholder-img card-img-top" width="100%" height="0" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Thumbnail">
                 <title>Placeholder</title> <!-- <rect width="100%" height="100%" fill="#55595c"/> -->
 <!--                 <img src="{% static "shop\mans_haircut.jpg" %}" alt="mans haircut" width="100%" height="100%"> -->
-                    <img src="{% static procedure.procedure_pic %}" alt="mans haircut" width="100%" height="100%">
-<!--                 <img src="{{ procedure.procedure_pic }}" alt="{{ procedure.procedure_pic }}" width="100%" height="100%">-->
-<!--                <img src="media/procedures/mans_haircut.jpg" alt="{{ procedure.procedure_pic }}" width="100%" height="100%">-->
+                    <img src="{% static procedure.procedure_pic.url %}" alt="mans haircut" width="100%" height="100%">
+<!--                <p>{% static procedure.procedure_pic.url %}</p>-->
                 <text x="50%" y="50%" fill="#eceeef" dy=".3em" >{{ procedure.name }}</text></svg>
             <div class="card-body">
               <p class="card-text">{{ procedure.price }}</p>
