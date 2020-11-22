@@ -7,6 +7,7 @@ class Procedures(models.Model):
     name = models.CharField(max_length=50, blank=False)
     price = models.DecimalField(max_length=19, decimal_places=2, max_digits=19)
     duration = models.IntegerField(default=30)
+    procedure_pic = models.ImageField(upload_to='media/procedures/', null=True, blank=True)
 
     def __str__(self):
         return self.name

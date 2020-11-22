@@ -33,6 +33,19 @@
           font-size: 3.5rem;
         }
       }
+
+      .proc_title {
+        margin-left: 20px;
+        margin-top: 20px;
+        display: flex;
+      }
+      .proc_info {
+        max-width: 500;
+      }
+
+      .proc_photo {
+        width: 500px;
+      }
     </style>
     <!-- Custom styles for this template -->
   </head>
@@ -62,28 +75,18 @@
     {% endif %}
   </nav>
 </div>
-
-    <div class="row">
-    <div class="col-md-4">
-    <div class="card mb-4 shadow-sm">
-            <svg class="bd-placeholder-img card-img-top" width="50%" height="225" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Thumbnail">
+<div class="proc_title">
+    <div class="proc_info">
+            <!-- <svg class="bd-placeholder-img card-img-top" width="100%" height="0" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Thumbnail"> -->
                 <title>Placeholder</title>
-                <rect width="100%" height="100%" fill="#55595c"/>
-                <text x="50%" y="50%" fill="#eceeef" dy=".3em">{{ procedure.name }}</text>
-            </svg>
+                <img class="proc_photo" src="{% static procedure.procedure_pic %}" alt="mans haircut">
+            </br>
+                <span x="50%" y="50%" fill="#eceeef" dy=".3em">{{ procedure.name }}</span>
+            <!-- </svg> -->
             <div class="card-body">
               <p class="card-text">Price: {{ procedure.price }}</p>
                 <text x="50%" y="50%" fill="#eceeef" dy=".3em">Duration: {{ procedure.duration }}</text>
             </div>
-    </div>
-    </div>
-        <div class="col-md-4">
-
-        </div>
-        <div class="col-md-4">
-
-
-        </div>
     </div>
 
 {% if masters %}
@@ -102,8 +105,10 @@
                 <div class="btn-group">
                   <a type="button" class="btn btn-sm btn-outline-secondary" href="{% url 'shop:reg_order' procedure.id master.id %}">SELECT</a>
                 </div>
-                <small class="text-muted">{{ master.age }} years</small>
+                <div>
+                  <small class="text-muted">{{ master.age }} years</small>
                   <small class="text-muted">Ave ratio: {{ master.ratio }} <meter value="{{ master.ratio }}" min="0" max="5" low="2" high="3" optimum="4"></meter></small>
+                </div>
               </div>
             </div>
           </div>
@@ -113,6 +118,6 @@
     </div>
   </div>
     {% endif %}
-
+  </div>
   </body>
 </html>

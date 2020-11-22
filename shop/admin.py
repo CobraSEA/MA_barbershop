@@ -9,11 +9,11 @@ from django import forms
 class ProcedureForm(forms.ModelForm):
     class Meta:
         model = Procedures
-        fields = ('name', 'duration', 'price')
+        fields = ('name', 'duration', 'price', 'procedure_pic')
 
 
 class ProcedureAdmin(admin.ModelAdmin):
-    list_display = ('name', 'duration', 'price')
+    list_display = ('name', 'duration', 'price', 'procedure_pic')
     form = ProcedureForm
 
 
